@@ -77,18 +77,17 @@ object LogParser {
         x._2.foreach(
           y => {
             val ant = y._1
-            val pathResults: Path = Paths.get(outPathResults.toString, "server-" + servCount + "-" + ant + ".out")
+            val pathResults: Path = Paths.get(outPathResults.toString, "server-" + servCount + "-" + ant + ".csv")
             if (Files.exists(pathResults)) {
               Files.delete(pathResults)
             }
             val file = Files.createFile(pathResults)
             val bw = new BufferedWriter(new FileWriter(file.toFile))
-            if (ant.equals("perf"))
-              {
-                bw.write("Time,CPU,ClientsInRoom,Rooms,Users,LocalUsers,Latency,BwUp,BwDown,InStreamBw," +
-                  "OutStreamBw,Streams,OutStreams")
-                bw.newLine()
-              }
+            if (ant.equals("perf")) {
+              bw.write("Time,CPU,ClientsInRoom,Rooms,Users,LocalUsers,Latency,BwUp,BwDown,InStreamBw," +
+                "OutStreamBw,Streams,OutStreams")
+              bw.newLine()
+            }
             else {
               bw.write("Time,Pheromone")
               bw.newLine()
@@ -107,7 +106,7 @@ object LogParser {
       x => {
         val ant = x._1
         if (!ant.equals("perf") && !ant.equals("control")) {
-          val pathResults: Path = Paths.get(outPathResults.toString, "ant-" + ant + ".out")
+          val pathResults: Path = Paths.get(outPathResults.toString, "ant-" + ant + ".csv")
           if (Files.exists(pathResults)) {
             Files.delete(pathResults)
           }
@@ -181,6 +180,7 @@ object LogParser {
       case ex: FileNotFoundException => println("Couldn't find that file.")
       case ex: IOException => println("Had an IOException trying to read that file")
     }
+    for ((x,y) <- results) results + x -> y.reverse
     results
   }
 
