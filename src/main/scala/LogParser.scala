@@ -127,6 +127,7 @@ object LogParser {
 
   def processResults(dirPath: String, path: String, file: String): Map[String, List[String]] = {
     var results = Map[String, List[String]]()
+    var newResults = Map[String, List[String]]()
     try {
       var servAddress: String = ""
       for (line <- Source.fromFile(Paths.get(dirPath, path, file).toString).getLines()) {
@@ -152,7 +153,8 @@ object LogParser {
           val value = localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli + ", " +
             line.substring(line.indexOf("pheromone") + "pheromone".length + 1, line.length)
           results = results + (uid -> (value :: results.getOrElse(uid, List[String]())))
-        } else if (line.contains("Red5Sensor") && !line.contains("Couldn't get sensor metrics")) {
+        } else if (line.contains("Red5Sensor") && !line.contains("Couldn't get sensor metrics")
+          && !line.contains("Leaving cluster") && !line.contains("Shutting down")) {
           val timeStr = line.substring(0, line.indexOf(" "))
           val time = LocalTime.parse(timeStr, formatter)
           val localDateTime = LocalDateTime.of(LocalDate.now(), time)
@@ -180,8 +182,10 @@ object LogParser {
       case ex: FileNotFoundException => println("Couldn't find that file.")
       case ex: IOException => println("Had an IOException trying to read that file")
     }
-    for ((x,y) <- results) results + x -> y.reverse
-    results
+    for ((x, y) <- results) {
+      newResults = newResults + (x -> y.reverse)
+    }
+    newResults
   }
 
   def getListOfSubDirectories(directoryName: String): Array[String] = {
